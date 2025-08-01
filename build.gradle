@@ -1,0 +1,72 @@
+import org.gradle.internal.os.OperatingSystem
+
+buildscript {
+    repositories {
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath 'com.github.johnrengelman:shadow:8.1.1'
+    }
+}
+
+plugins {
+	id 'com.github.johnrengelman.shadow' version '8.1.1'
+	id 'java'
+	id 'eclipse'
+}
+
+project.ext.lwjglVersion = "3.3.2"
+
+switch (OperatingSystem.current()) {
+	case OperatingSystem.LINUX:
+		project.ext.lwjglNatives = "natives-linux"
+		break
+	case OperatingSystem.MAC_OS:
+		project.ext.lwjglNatives = "natives-macos"
+		break
+	case OperatingSystem.WINDOWS:
+		project.ext.lwjglNatives = "natives-windows"
+		break
+}
+
+group = 'me.eldodebug'
+version = '1.0'
+sourceCompatibility = '8'
+
+apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'java'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+
+	implementation 'org.apache.logging.log4j:log4j-api:2.20.0'
+  	implementation 'org.apache.logging.log4j:log4j-core:2.20.0'
+	implementation 'com.google.code.gson:gson:2.7'
+	implementation 'commons-io:commons-io:2.11.0'
+	
+	implementation platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
+
+	implementation "org.lwjgl:lwjgl"
+	implementation "org.lwjgl:lwjgl-glfw"
+	implementation "org.lwjgl:lwjgl-nanovg"
+	implementation "org.lwjgl:lwjgl-opengl"
+	implementation "org.lwjgl:lwjgl-stb"
+	runtimeOnly "org.lwjgl:lwjgl::$lwjglNatives"
+	runtimeOnly "org.lwjgl:lwjgl-glfw::$lwjglNatives"
+	runtimeOnly "org.lwjgl:lwjgl-nanovg::$lwjglNatives"
+	runtimeOnly "org.lwjgl:lwjgl-opengl::$lwjglNatives"
+	runtimeOnly "org.lwjgl:lwjgl-stb::$lwjglNatives"
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+jar {
+    manifest {
+        attributes "Main-Class" : "me.eldodebug.Main"
+    }
+}
